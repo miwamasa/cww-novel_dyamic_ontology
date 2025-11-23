@@ -18,7 +18,7 @@ export class LLMService {
       case 'openai':
         return 'gpt-4-turbo-preview';
       case 'anthropic':
-        return 'claude-3-5-sonnet-20241022';
+        return 'claude-haiku-4-5';
       default:
         return 'gpt-4-turbo-preview';
     }

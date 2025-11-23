@@ -1,0 +1,34 @@
+{
+  "ontologyA": {
+    "id": "person-ontology",
+    "name": "Person Ontology",
+    "version": "1.0",
+    "metadata": {},
+    "classes": [
+      {"id": "Person", "name": "Person", "superClasses": [], "metadata": {}},
+      {"id": "Employee", "name": "Employee", "superClasses": ["Person"], "metadata": {}}
+    ],
+    "relations": [
+      {"id": "hasName", "name": "has name", "domain": "Person", "range": "xsd:string", "type": "datatype", "constraints": {}, "metadata": {}}
+    ],
+    "axioms": [],
+    "instances": [],
+    "vocabulary": {}
+  },
+  "ontologyB": {
+    "id": "human-ontology",
+    "name": "Human Ontology",
+    "version": "1.0",
+    "metadata": {},
+    "classes": [
+      {"id": "Human", "name": "Human", "superClasses": [], "metadata": {}},
+      {"id": "Worker", "name": "Worker", "superClasses": ["Human"], "metadata": {}}
+    ],
+    "relations": [
+      {"id": "name", "name": "name", "domain": "Human", "range": "xsd:string", "type": "datatype", "constraints": {}, "metadata": {}}
+    ],
+    "axioms": [],
+    "instances": [],
+    "vocabulary": {}
+  }
+}
