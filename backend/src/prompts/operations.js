@@ -331,13 +331,145 @@ ${JSON.stringify(ontologyKnown, null, 2)}
 
 Generate the complete result following this schema.
 `
+  },
+
+  /**
+   * Transformation Operation
+   * Mathematical: F: O_source → O_target (Functor mapping)
+   */
+  transformation: {
+    name: 'Transformation (Domain Mapping)',
+    description: 'Transform source ontology to target schema using explicit mappings',
+    template: (ontologyA, ontologyB, mappingRules) => `
+# Task: Ontology Transformation (Functor Mapping)
+
+You are performing an ONTOLOGY TRANSFORMATION.
+This operation transforms a source ontology into a target ontology structure using explicit mapping rules.
+This is a STRUCTURE-PRESERVING transformation (functor) that converts data from one domain to another.
+
+## Source Ontology (to be transformed):
+${JSON.stringify(ontologyA, null, 2)}
+
+## Target Schema/Ontology (target structure):
+${JSON.stringify(ontologyB, null, 2)}
+
+## Transformation Mapping Rules:
+${mappingRules ? JSON.stringify(mappingRules, null, 2) : `
+INFER mapping rules by:
+1. Finding semantic correspondences between source and target classes
+2. Mapping relations based on domain/range compatibility
+3. Identifying computed properties (e.g., emissions = activity × factor)
+4. Preserving traceability to source data
+`}
+
+## Instructions:
+
+### 1. Class Transformation
+- For each class in source ontology, find corresponding class in target schema
+- Create mapping: SourceClass → TargetClass
+- Document confidence level for each mapping
+
+### 2. Relation Transformation
+- Map source relations to target relations
+- Handle type conversions if needed
+- Identify relations that need computation (derived properties)
+
+### 3. Instance Transformation (Data Migration)
+- For each instance in source:
+  * Apply class mapping to determine target class
+  * Apply relation mappings to transform properties
+  * Compute derived properties using formulas
+  * Preserve traceability (reference to original instance)
+
+### 4. Computed Properties
+- Identify properties that don't exist in source but are required in target
+- Define computation rules (e.g., from metadata or external data)
+- Apply computations to all transformed instances
+
+### 5. Quality Assurance
+- Verify all required target properties are populated
+- Check data type compatibility
+- Ensure no data loss (preserve unmapped data in metadata)
+- Validate against target schema
+
+## Output Format (JSON):
+{
+  "result": {
+    "id": "transformed-ontology-id",
+    "name": "Target Ontology Name (Transformed from Source)",
+    "version": "1.0",
+    "classes": [...],  // Target schema classes
+    "relations": [...],  // Target schema relations
+    "axioms": [...],
+    "instances": [...],  // Transformed instances
+    "vocabulary": {...},
+    "metadata": {
+      "transformation": {
+        "source_ontology": "source-id",
+        "target_schema": "target-id",
+        "transformation_date": "ISO datetime",
+        "total_emissions": "if applicable"
+      }
+    }
+  },
+  "transformation_metadata": {
+    "operation": "transformation",
+    "mappings_applied": [
+      {
+        "source": "SourceClass",
+        "target": "TargetClass",
+        "type": "class",
+        "confidence": 0.95
+      },
+      {
+        "source": "sourceRelation",
+        "target": "targetRelation",
+        "type": "relation",
+        "transformation": "direct|computed|derived"
+      }
+    ],
+    "computed_properties": [
+      {
+        "property": "propertyName",
+        "formula": "description of computation",
+        "source": "metadata|external_db|calculation"
+      }
+    ],
+    "unmapped_elements": [
+      {
+        "element": "ElementName",
+        "type": "class|relation",
+        "reason": "no corresponding element in target schema",
+        "preserved_in": "metadata"
+      }
+    ],
+    "data_quality": {
+      "instances_transformed": number,
+      "completeness": "percentage",
+      "data_loss": false,
+      "validation_status": "passed|failed"
+    }
+  }
+}
+
+## Example: Factory Production → GHG Reporting
+
+If transforming production data to GHG report:
+- ProductionBatch → EmissionEntry
+- quantity → activity
+- Compute: emissionFactor (from product metadata or external DB)
+- Compute: emissions = activity × emissionFactor
+- Preserve: original batch ID in sourceFor
+
+Generate the complete result following this schema.
+`
   }
 };
 
 /**
  * Generate a prompt for a specific operation
- * @param {string} operation - One of: 'addition', 'subtraction', 'merge', 'composition', 'division'
- * @param {Object} params - Operation parameters (ontologies, interface spec, etc.)
+ * @param {string} operation - One of: 'addition', 'subtraction', 'merge', 'composition', 'division', 'transformation'
+ * @param {Object} params - Operation parameters (ontologies, interface spec, mapping rules, etc.)
  * @returns {string} The complete prompt
  */
 export function generatePrompt(operation, params) {
@@ -354,6 +486,8 @@ export function generatePrompt(operation, params) {
       return promptConfig.template(params.ontologyA, params.ontologyB);
     case 'composition':
       return promptConfig.template(params.ontologyA, params.ontologyB, params.interface);
+    case 'transformation':
+      return promptConfig.template(params.ontologyA, params.ontologyB, params.mappingRules);
     default:
       throw new Error(`Unsupported operation: ${operation}`);
   }

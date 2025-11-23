@@ -503,6 +503,284 @@ WidgetX の BOM:
   合計: 2750 kgCO2e
 ```
 
+### Transformation演算の実行（新規拡張）
+
+#### 概要
+
+**Composition vs Transformation**:
+- **Composition**: Factory Production と GHG Report を接続（両方保持）
+- **Transformation**: Factory Production を GHG Report に変換（データマイグレーション）
+
+Transformationは、**ソースドメインからターゲットドメインへの構造的な変換**を行います。
+
+#### シナリオ: 生産記録からGHGレポートへの自動変換
+
+工場で記録された生産データを、GHG報告フォーマットに自動変換します。
+
+#### 変換マッピングルール
+
+```yaml
+Class Mappings:
+  ProductionBatch → EmissionEntry
+  Product → (参照として保持)
+  Factory → (メタデータとして保持)
+
+Relation Mappings:
+  quantity → activity
+    - 型: decimal → decimal (そのまま)
+    - 意味: 生産量 → 活動量
+
+  batchOf → sourceFor
+    - 型: object reference (そのまま)
+    - 意味: 製品参照 → 排出源参照
+
+  timestamp → (メタデータとして保持)
+    - GHG報告には直接含まれないが、トレーサビリティのため保持
+
+Computed Relations:
+  emissionFactor:
+    - ソース: Product.metadata.carbonFootprint または外部DB
+    - 例: WidgetX → 0.75 kgCO2e/unit
+
+  emissions:
+    - 計算式: quantity × emissionFactor
+    - 例: 1000 × 0.75 = 750 kgCO2e
+```
+
+#### 入力（ソースオントロジー）
+
+```json
+{
+  "id": "factory-production-2025-11",
+  "name": "Factory Production November 2025",
+  "classes": [
+    {"id": "Factory", "name": "Factory"},
+    {"id": "ProductionBatch", "name": "Production Batch"},
+    {"id": "Product", "name": "Product"}
+  ],
+  "relations": [
+    {"id": "produces", "domain": "Factory", "range": "ProductionBatch"},
+    {"id": "batchOf", "domain": "ProductionBatch", "range": "Product"},
+    {"id": "quantity", "domain": "ProductionBatch", "range": "xsd:decimal"},
+    {"id": "timestamp", "domain": "ProductionBatch", "range": "xsd:dateTime"}
+  ],
+  "instances": [
+    {
+      "id": "Batch_2025_11_01",
+      "classId": "ProductionBatch",
+      "properties": {
+        "batchOf": ":WidgetX",
+        "quantity": {"value": "1000", "type": "xsd:decimal"},
+        "timestamp": {"value": "2025-11-01T08:00:00", "type": "xsd:dateTime"}
+      }
+    },
+    {
+      "id": "Batch_2025_11_02",
+      "classId": "ProductionBatch",
+      "properties": {
+        "batchOf": ":WidgetY",
+        "quantity": {"value": "500", "type": "xsd:decimal"},
+        "timestamp": {"value": "2025-11-02T09:30:00", "type": "xsd:dateTime"}
+      }
+    },
+    {
+      "id": "WidgetX",
+      "classId": "Product",
+      "metadata": {"name": "Widget X", "carbonFootprint": 0.75}
+    },
+    {
+      "id": "WidgetY",
+      "classId": "Product",
+      "metadata": {"name": "Widget Y", "carbonFootprint": 1.2}
+    }
+  ]
+}
+```
+
+#### 外部データソース（排出係数データベース）
+
+```json
+{
+  "emission_factors": {
+    "WidgetX": {
+      "factor": 0.75,
+      "unit": "kgCO2e/unit",
+      "source": "Internal LCA Database",
+      "updated": "2025-01-15"
+    },
+    "WidgetY": {
+      "factor": 1.2,
+      "unit": "kgCO2e/unit",
+      "source": "Supplier Data",
+      "updated": "2025-02-10"
+    }
+  }
+}
+```
+
+#### 変換プロセス
+
+```python
+# 擬似コード
+for batch in source_ontology.instances.filter(classId="ProductionBatch"):
+    # 1. EmissionEntryインスタンスを作成
+    emission_entry = {
+        "id": f"Emission_{batch.id}",
+        "classId": "EmissionEntry"
+    }
+
+    # 2. マッピングを適用
+    emission_entry.properties = {
+        "sourceFor": batch.id,  # batchOf → sourceFor
+        "activity": batch.properties.quantity  # quantity → activity
+    }
+
+    # 3. 排出係数を取得
+    product_id = batch.properties.batchOf
+    emission_factor = get_emission_factor(product_id)
+    emission_entry.properties.emissionFactor = emission_factor
+
+    # 4. 排出量を計算
+    emissions = batch.properties.quantity.value * emission_factor
+    emission_entry.properties.emissions = emissions
+
+    # 5. トレーサビリティ情報を保持
+    emission_entry.metadata = {
+        "original_batch": batch.id,
+        "timestamp": batch.properties.timestamp,
+        "transformation_date": current_datetime()
+    }
+
+    target_ontology.add_instance(emission_entry)
+```
+
+#### 出力（ターゲットオントロジー）
+
+```json
+{
+  "id": "ghg-report-2025-11-transformed",
+  "name": "GHG Report November 2025 (Transformed from Production Data)",
+  "classes": [
+    {"id": "EmissionReport", "name": "Emission Report"},
+    {"id": "EmissionEntry", "name": "Emission Entry"},
+    {"id": "EmissionSource", "name": "Emission Source"}
+  ],
+  "relations": [
+    {"id": "hasSource", "domain": "EmissionReport", "range": "EmissionEntry"},
+    {"id": "sourceFor", "domain": "EmissionEntry", "range": "xsd:string"},
+    {"id": "activity", "domain": "EmissionEntry", "range": "xsd:decimal"},
+    {"id": "emissionFactor", "domain": "EmissionEntry", "range": "xsd:decimal"},
+    {"id": "emissions", "domain": "EmissionEntry", "range": "xsd:decimal"}
+  ],
+  "instances": [
+    {
+      "id": "Emission_Batch_2025_11_01",
+      "classId": "EmissionEntry",
+      "properties": {
+        "sourceFor": "Batch_2025_11_01",
+        "activity": {"value": "1000", "type": "xsd:decimal"},
+        "emissionFactor": {"value": "0.75", "type": "xsd:decimal"},
+        "emissions": {"value": "750", "type": "xsd:decimal"}
+      },
+      "metadata": {
+        "original_batch": "Batch_2025_11_01",
+        "timestamp": "2025-11-01T08:00:00",
+        "transformation_date": "2025-11-23T10:00:00",
+        "product": "WidgetX"
+      }
+    },
+    {
+      "id": "Emission_Batch_2025_11_02",
+      "classId": "EmissionEntry",
+      "properties": {
+        "sourceFor": "Batch_2025_11_02",
+        "activity": {"value": "500", "type": "xsd:decimal"},
+        "emissionFactor": {"value": "1.2", "type": "xsd:decimal"},
+        "emissions": {"value": "600", "type": "xsd:decimal"}
+      },
+      "metadata": {
+        "original_batch": "Batch_2025_11_02",
+        "timestamp": "2025-11-02T09:30:00",
+        "transformation_date": "2025-11-23T10:00:00",
+        "product": "WidgetY"
+      }
+    }
+  ],
+  "metadata": {
+    "transformation": {
+      "source_ontology": "factory-production-2025-11",
+      "target_schema": "ghg-reporting",
+      "transformation_type": "functor_mapping",
+      "instances_transformed": 2,
+      "total_emissions": 1350,
+      "unit": "kgCO2e",
+      "mappings_applied": [
+        {"source": "ProductionBatch", "target": "EmissionEntry", "type": "class"},
+        {"source": "quantity", "target": "activity", "type": "relation"},
+        {"source": "batchOf", "target": "sourceFor", "type": "relation"}
+      ],
+      "computed_properties": [
+        {"property": "emissionFactor", "source": "external_db"},
+        {"property": "emissions", "formula": "activity × emissionFactor"}
+      ],
+      "data_quality": {
+        "completeness": "100%",
+        "emission_factor_coverage": "100%",
+        "data_loss": false
+      }
+    }
+  }
+}
+```
+
+#### 変換結果の検証
+
+```
+✅ 変換済みインスタンス数: 2
+✅ 総排出量: 1350 kgCO2e
+   - Batch_2025_11_01: 750 kgCO2e
+   - Batch_2025_11_02: 600 kgCO2e
+
+✅ データ品質:
+   - 完全性: 100% (すべてのバッチが変換済み)
+   - 排出係数カバレッジ: 100%
+   - データロス: なし
+
+✅ トレーサビリティ:
+   - 各EmissionEntryは元のProductionBatchにリンク
+   - タイムスタンプ保持
+   - 変換プロセスのメタデータ記録
+```
+
+#### Composition vs Transformation の比較
+
+| 観点 | Composition | Transformation |
+|------|-------------|----------------|
+| **結果の構造** | Factory Production ∘ GHG Report<br>（両方のオントロジーが存在） | GHG Report のみ<br>（Factory Productionは変換済み） |
+| **データの流れ** | ProductionBatch → EmissionEntry<br>（参照関係） | ProductionBatch ⇒ EmissionEntry<br>（変換・置換） |
+| **用途** | リアルタイム統合<br>継続的なデータフロー | データマイグレーション<br>レポート生成 |
+| **可逆性** | ✅ 元データ保持 | ⚠️ 元データは変換済み（メタデータに記録） |
+| **計算** | 動的（参照時に計算） | 静的（変換時に計算・固定） |
+
+#### 実用例
+
+**Composition の使用ケース:**
+```
+工場システム（生産記録） → GHGモニタリングシステム
+- リアルタイムで排出量を監視
+- 生産データは元システムで管理
+- GHGシステムは参照のみ
+```
+
+**Transformation の使用ケース:**
+```
+月次レポート生成:
+  生産記録 → 月次GHG報告書
+- 生産データを集計・変換
+- 固定されたレポートを生成
+- 監査証跡として保管
+```
+
 ---
 
 ## 演算別の詳細例

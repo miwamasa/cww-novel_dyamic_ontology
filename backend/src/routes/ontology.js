@@ -62,7 +62,7 @@ router.post('/execute/:operation', async (req, res) => {
       return res.status(400).json({ error: 'ontologyA is required' });
     }
 
-    const validOperations = ['addition', 'subtraction', 'merge', 'composition', 'division'];
+    const validOperations = ['addition', 'subtraction', 'merge', 'composition', 'division', 'transformation'];
     if (!validOperations.includes(operation)) {
       return res.status(400).json({
         error: `Invalid operation: ${operation}`,
@@ -71,7 +71,7 @@ router.post('/execute/:operation', async (req, res) => {
     }
 
     // For operations that require two ontologies
-    if (['addition', 'subtraction', 'merge', 'composition', 'division'].includes(operation)) {
+    if (['addition', 'subtraction', 'merge', 'composition', 'division', 'transformation'].includes(operation)) {
       if (!ontologyB) {
         return res.status(400).json({ error: 'ontologyB is required for this operation' });
       }
@@ -121,7 +121,7 @@ router.post('/generate-prompt/:operation', (req, res) => {
       return res.status(400).json({ error: 'ontologyA is required' });
     }
 
-    const validOperations = ['addition', 'subtraction', 'merge', 'composition', 'division'];
+    const validOperations = ['addition', 'subtraction', 'merge', 'composition', 'division', 'transformation'];
     if (!validOperations.includes(operation)) {
       return res.status(400).json({
         error: `Invalid operation: ${operation}`,
@@ -133,7 +133,8 @@ router.post('/generate-prompt/:operation', (req, res) => {
     const prompt = generatePrompt(operation, {
       ontologyA,
       ontologyB,
-      interface: interfaceSpec
+      interface: interfaceSpec,
+      mappingRules: req.body.mappingRules
     });
 
     res.json({
