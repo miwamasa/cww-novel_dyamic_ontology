@@ -306,3 +306,90 @@
   max-height: 500px;
   overflow-y: auto;
 }
+
+/* Prompt Preview Styles */
+.prompt-preview-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  padding: 1.5rem;
+}
+
+.prompt-info {
+  background: #f8f9fa;
+  padding: 1.5rem;
+  border-radius: 8px;
+  border-left: 4px solid #48bb78;
+}
+
+.prompt-info h4 {
+  margin: 0 0 1rem 0;
+  color: #333;
+  font-size: 1.1rem;
+}
+
+.input-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.summary-item {
+  padding: 0.75rem;
+  background: white;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  color: #555;
+}
+
+.summary-item strong {
+  color: #333;
+  margin-right: 0.5rem;
+}
+
+.prompt-text {
+  position: relative;
+}
+
+.prompt-text h4 {
+  margin: 0 0 1rem 0;
+  color: #333;
+  font-size: 1.1rem;
+}
+
+.copy-btn {
+  position: absolute;
+  top: 0;
+  right: 0;
+  padding: 0.5rem 1rem;
+  background: #48bb78;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+
+.copy-btn:hover {
+  background: #38a169;
+  transform: translateY(-2px);
+  box-shadow: 0 2px 8px rgba(72, 187, 120, 0.3);
+}
+
+.prompt-content {
+  background: #f8f9fa;
+  padding: 1.5rem;
+  border-radius: 6px;
+  overflow-x: auto;
+  font-size: 0.85rem;
+  line-height: 1.6;
+  margin: 0;
+  max-height: 600px;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  border: 1px solid #dee2e6;
+}

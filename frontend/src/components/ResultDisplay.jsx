@@ -6,6 +6,49 @@ function ResultDisplay({ result, operation }) {
 
   if (!result) return null;
 
+  // Handle prompt preview display
+  if (result._type === 'prompt-preview') {
+    return (
+      <div className="result-container">
+        <div className="result-tabs">
+          <h3>📋 Prompt Preview</h3>
+        </div>
+        <div className="prompt-preview-content">
+          <div className="prompt-info">
+            <h4>Operation: {result.operation}</h4>
+            {result.inputSummary && (
+              <div className="input-summary">
+                <div className="summary-item">
+                  <strong>Ontology A:</strong> {result.inputSummary.ontologyA.name}
+                  ({result.inputSummary.ontologyA.classCount} classes, {result.inputSummary.ontologyA.relationCount} relations)
+                </div>
+                {result.inputSummary.ontologyB && (
+                  <div className="summary-item">
+                    <strong>Ontology B:</strong> {result.inputSummary.ontologyB.name}
+                    ({result.inputSummary.ontologyB.classCount} classes, {result.inputSummary.ontologyB.relationCount} relations)
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+          <div className="prompt-text">
+            <h4>LLM Prompt:</h4>
+            <button
+              className="copy-btn"
+              onClick={() => {
+                navigator.clipboard.writeText(result.prompt);
+                alert('Prompt copied to clipboard!');
+              }}
+            >
+              📋 Copy to Clipboard
+            </button>
+            <pre className="prompt-content">{result.prompt}</pre>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   const renderResult = () => {
     if (!result.result) {
       return <pre>{JSON.stringify(result, null, 2)}</pre>;
