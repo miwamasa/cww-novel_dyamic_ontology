@@ -1,0 +1,271 @@
+.result-display {
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.result-header-main {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 1.5rem;
+}
+
+.result-header-main h2 {
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.result-tabs {
+  display: flex;
+  background: #f8f9fa;
+  border-bottom: 2px solid #dee2e6;
+  overflow-x: auto;
+}
+
+.tab-btn {
+  padding: 1rem 1.5rem;
+  background: none;
+  border: none;
+  border-bottom: 3px solid transparent;
+  cursor: pointer;
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: #666;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.tab-btn:hover {
+  background: #e9ecef;
+  color: #333;
+}
+
+.tab-btn.active {
+  color: #667eea;
+  border-bottom-color: #667eea;
+  background: white;
+}
+
+.result-content {
+  padding: 2rem;
+  max-height: 600px;
+  overflow-y: auto;
+}
+
+.result-ontology {
+}
+
+.result-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid #eee;
+}
+
+.result-header h4 {
+  margin: 0;
+  color: #667eea;
+  font-size: 1.2rem;
+}
+
+.result-id {
+  color: #999;
+  font-size: 0.85rem;
+  font-family: 'Courier New', monospace;
+}
+
+.result-sections {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+}
+
+.result-section {
+}
+
+.result-section h5 {
+  color: #555;
+  font-size: 1rem;
+  margin-bottom: 0.75rem;
+  font-weight: 600;
+}
+
+.result-section ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.result-section li {
+  padding: 0.5rem;
+  margin-bottom: 0.3rem;
+  background: #f8f9fa;
+  border-radius: 4px;
+  font-size: 0.9rem;
+}
+
+.result-section li:hover {
+  background: #e9ecef;
+}
+
+.super,
+.signature,
+.type {
+  color: #666;
+  font-size: 0.85rem;
+  margin-left: 0.5rem;
+}
+
+.signature {
+  font-family: 'Courier New', monospace;
+}
+
+.type {
+  color: #667eea;
+}
+
+.alignments-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.alignment-item {
+  padding: 1rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border-left: 4px solid #667eea;
+}
+
+.alignment-mapping {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+}
+
+.source-a,
+.source-b {
+  padding: 0.3rem 0.6rem;
+  background: white;
+  border-radius: 4px;
+  font-family: 'Courier New', monospace;
+  font-size: 0.9rem;
+}
+
+.arrow {
+  color: #667eea;
+  font-size: 1.2rem;
+}
+
+.confidence {
+  margin-left: auto;
+  padding: 0.2rem 0.6rem;
+  background: #28a745;
+  color: white;
+  border-radius: 12px;
+  font-size: 0.8rem;
+}
+
+.alignment-reasoning {
+  color: #666;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.conflicts-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.no-conflicts {
+  color: #28a745;
+  font-size: 1.1rem;
+  font-weight: 600;
+  padding: 2rem;
+  text-align: center;
+}
+
+.conflict-item {
+  padding: 1rem;
+  background: #fff3cd;
+  border-radius: 8px;
+  border-left: 4px solid #ffc107;
+}
+
+.conflict-description {
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+  color: #856404;
+}
+
+.conflict-strategies {
+  margin-top: 0.75rem;
+}
+
+.conflict-strategies strong {
+  color: #333;
+  font-size: 0.9rem;
+}
+
+.conflict-strategies ul {
+  list-style: none;
+  padding-left: 1rem;
+  margin-top: 0.5rem;
+}
+
+.conflict-strategies li {
+  padding: 0.3rem 0;
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.conflict-strategies li.selected {
+  color: #28a745;
+  font-weight: 600;
+}
+
+.conflict-reasoning {
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid #ffc107;
+  color: #666;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.metadata-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.metadata-section h5 {
+  color: #555;
+  font-size: 1rem;
+  margin-bottom: 0.75rem;
+}
+
+.metadata-section pre {
+  background: #f8f9fa;
+  padding: 1rem;
+  border-radius: 6px;
+  overflow-x: auto;
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
+
+.json-output {
+  background: #f8f9fa;
+  padding: 1.5rem;
+  border-radius: 6px;
+  overflow-x: auto;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  margin: 0;
+}
