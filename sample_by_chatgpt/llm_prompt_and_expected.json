@@ -1,0 +1,39 @@
+## Task: Ontology Alignment & Merge for Factory -> GHG Reporting
+
+INPUT:
+- Ontology A (FactoryProduction) and Ontology B (GHGReport) are provided as RDF triples / JSON-LD.
+- There is instance data: Batch_2025_11_01 produced 1000 units of WidgetX.
+
+TASKS (respond as JSON with fields: mappings, merged_triples, contradictions, resolution_suggestions, competency_questions):
+
+1) Propose mappings between Ontology A and Ontology B (format: A_term -> B_term, confidence 0..1).
+2) Produce merged triples (in Turtle-like array form) that link ProductionBatch to EmissionEntry and include computed emissions.
+3) List potential logical contradictions (if any) arising from merging (max 5).
+4) For each contradiction, propose 1-3 resolution strategies (priority-ranked).
+5) Propose 3 competency questions (SPARQL-style) that validate the merged ontology.
+
+EXPECTED (example) output:
+{
+  "mappings": [
+    {"A":"ProductionBatch", "B":"EmissionEntry", "confidence":0.95},
+    {"A":"quantity", "B":"activity", "confidence":0.98},
+    {"A":"Batch_2025_11_01", "B":"Entry_1", "confidence":0.85}
+  ],
+  "merged_triples": [
+    ":Entry_1 :sourceFor :Batch_2025_11_01 .",
+    ":Entry_1 :activity "1000"^^xsd:decimal .",
+    ":Entry_1 :emissionFactor "0.75"^^xsd:decimal .",
+    ":Entry_1 :emissions "750"^^xsd:decimal .",
+    ":EmissionReport_2025_11 :hasSource :Entry_1 ."
+  ],
+  "contradictions": [
+    "A requires quantity to be present but B assumes activity optional"
+  ],
+  "resolution_suggestions": [
+    {"contradiction":"A requires quantity...", "strategies":["make activity mandatory in merged schema", "add provenance and keep both as optional with check"]}
+  ],
+  "competency_questions": [
+    "What is total emissions for Factory F1 in November 2025?",
+    "List emissionFactors used for WidgetX process entries."
+  ]
+}

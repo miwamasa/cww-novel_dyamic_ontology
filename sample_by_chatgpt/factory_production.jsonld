@@ -1,0 +1,41 @@
+{
+  "@context": {
+    "": "http://example.org/factory#",
+    "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+    "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+    "xsd": "http://www.w3.org/2001/XMLSchema#"
+  },
+  "@graph": [
+    {
+      "@id": "Factory",
+      "@type": "rdfs:Class"
+    },
+    {
+      "@id": "ProductionBatch",
+      "@type": "rdfs:Class"
+    },
+    {
+      "@id": "Product",
+      "@type": "rdfs:Class"
+    },
+    {
+      "@id": "produces",
+      "@type": "rdf:Property",
+      "rdfs:domain": "Factory",
+      "rdfs:range": "ProductionBatch"
+    },
+    {
+      "@id": "Batch_2025_11_01",
+      "@type": "ProductionBatch",
+      "quantity": {
+        "@value": "1000",
+        "@type": "xsd:decimal"
+      },
+      "timestamp": {
+        "@value": "2025-11-01T08:00:00",
+        "@type": "xsd:dateTime"
+      },
+      "batchOf": "WidgetX"
+    }
+  ]
+}

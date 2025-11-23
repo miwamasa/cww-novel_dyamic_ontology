@@ -1,0 +1,29 @@
+# SPARQL checks for numeric consistency and simple competency questions
+
+# 1) Recalculate emissions and show mismatches > tolerance
+SELECT ?entry ?batch ?activity ?ef ?em_calc ?em_record WHERE {
+  ?entry a <http://example.org/ghg#EmissionEntry> ;
+         <http://example.org/ghg#sourceFor> ?batch ;
+         <http://example.org/ghg#activity> ?activity ;
+         <http://example.org/ghg#emissionFactor> ?ef ;
+         <http://example.org/ghg#emissions> ?em_record .
+  BIND(xsd:decimal(?activity) * xsd:decimal(?ef) AS ?em_calc)
+  FILTER(abs(xsd:decimal(?em_calc) - xsd:decimal(?em_record)) > 0.001)
+}
+
+# 2) Competency Q1: Total emissions for Factory F1 in November 2025
+SELECT (SUM(xsd:decimal(?emissions)) AS ?totalEmissions) WHERE {
+  ?report a <http://example.org/ghg#EmissionReport> .
+  ?report <http://example.org/ghg#hasSource> ?entry .
+  ?entry <http://example.org/ghg#sourceFor> ?batch .
+  ?batch <http://example.org/factory#produces> <http://example.org/factory#Batch_2025_11_01> .
+  ?entry <http://example.org/ghg#emissions> ?emissions .
+}
+
+# 3) Competency Q2: List emissionFactors used for WidgetX process entries
+SELECT DISTINCT ?ef WHERE {
+  ?entry a <http://example.org/ghg#EmissionEntry> ;
+         <http://example.org/ghg#emissionFactor> ?ef ;
+         <http://example.org/ghg#sourceFor> ?batch .
+  ?batch <http://example.org/factory#batchOf> <http://example.org/factory#WidgetX> .
+}

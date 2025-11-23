@@ -1,0 +1,15 @@
+@prefix : <http://example.org/ef#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# Ontology C: EmissionFactor (schema)
+:EmissionFactor a rdfs:Class .
+:appliesTo a rdf:Property ; rdfs:domain :EmissionFactor ; rdfs:range rdfs:Resource .
+:factorValue a rdf:Property ; rdfs:domain :EmissionFactor ; rdfs:range xsd:decimal .
+:unit a rdf:Property ; rdfs:domain :EmissionFactor ; rdfs:range rdfs:Literal .
+
+# Example instances (BOM / component factors)
+:EF_WidgetX_Process a :EmissionFactor .
+:EF_WidgetX_Process :appliesTo <http://example.org/factory#WidgetX> .
+:EF_WidgetX_Process :factorValue "0.75"^^xsd:decimal .
+:EF_WidgetX_Process :unit "kgCO2e_per_unit" .

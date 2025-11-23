@@ -1,0 +1,24 @@
+@prefix : <http://example.org/factory#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# Ontology A: FactoryProduction (schema)
+:Factory a rdfs:Class .
+:ProductionBatch a rdfs:Class .
+:Product a rdfs:Class .
+:Machine a rdfs:Class .
+
+:produces a rdf:Property ; rdfs:domain :Factory ; rdfs:range :ProductionBatch .
+:batchOf a rdf:Property ; rdfs:domain :ProductionBatch ; rdfs:range :Product .
+:quantity a rdf:Property ; rdfs:domain :ProductionBatch ; rdfs:range xsd:decimal .
+:timestamp a rdf:Property ; rdfs:domain :ProductionBatch ; rdfs:range xsd:dateTime .
+:operatedBy a rdf:Property ; rdfs:domain :ProductionBatch ; rdfs:range :Machine .
+
+# Example instances
+:F1 a :Factory .
+:WidgetX a :Product .
+:Batch_2025_11_01 a :ProductionBatch .
+:F1 :produces :Batch_2025_11_01 .
+:Batch_2025_11_01 :batchOf :WidgetX .
+:Batch_2025_11_01 :quantity "1000"^^xsd:decimal .
+:Batch_2025_11_01 :timestamp "2025-11-01T08:00:00"^^xsd:dateTime .

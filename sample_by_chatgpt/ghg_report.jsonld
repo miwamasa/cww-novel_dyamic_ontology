@@ -1,0 +1,30 @@
+{
+  "@context": {
+    "": "http://example.org/ghg#",
+    "prod": "http://example.org/factory#",
+    "xsd": "http://www.w3.org/2001/XMLSchema#"
+  },
+  "@graph": [
+    {
+      "@id": "EmissionReport_2025_11",
+      "@type": "EmissionReport"
+    },
+    {
+      "@id": "Entry_1",
+      "@type": "EmissionEntry",
+      "sourceFor": "prod:Batch_2025_11_01",
+      "activity": {
+        "@value": "1000",
+        "@type": "xsd:decimal"
+      },
+      "emissionFactor": {
+        "@value": "0.75",
+        "@type": "xsd:decimal"
+      },
+      "emissions": {
+        "@value": "750",
+        "@type": "xsd:decimal"
+      }
+    }
+  ]
+}

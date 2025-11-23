@@ -1,0 +1,20 @@
+@prefix : <http://example.org/ghg#> .
+@prefix prod: <http://example.org/factory#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# Simple OWL constraints for merged model
+:EmissionEntry a rdfs:Class .
+:ProductionBatch a rdfs:Class .
+
+# EmissionEntry.sourceFor range restriction to ProductionBatch
+:sourceFor a owl:ObjectProperty ; rdfs:domain :EmissionEntry ; rdfs:range prod:ProductionBatch .
+
+# activity, emissionFactor, emissions are datatype properties and should be decimals
+:activity a owl:DatatypeProperty ; rdfs:domain :EmissionEntry ; rdfs:range xsd:decimal .
+:emissionFactor a owl:DatatypeProperty ; rdfs:domain :EmissionEntry ; rdfs:range xsd:decimal .
+:emissions a owl:DatatypeProperty ; rdfs:domain :EmissionEntry ; rdfs:range xsd:decimal .
+
+# Example axiom: If emissionFactor and activity exist, emissions can be inferred (not expressible in OWL DL directly as multiplication)
+# We will rely on external SPARQL arithmetic for numeric inference and consistency checks.

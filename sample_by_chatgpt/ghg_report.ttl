@@ -1,0 +1,25 @@
+@prefix : <http://example.org/ghg#> .
+@prefix prod: <http://example.org/factory#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# Ontology B: GHGReport (schema)
+:EmissionReport a rdfs:Class .
+:EmissionEntry a rdfs:Class .
+:EmissionSource a rdfs:Class .
+:EmissionFactor a rdfs:Class .
+
+:hasSource a rdf:Property ; rdfs:domain :EmissionReport ; rdfs:range :EmissionEntry .
+:activity a rdf:Property ; rdfs:domain :EmissionEntry ; rdfs:range xsd:decimal .
+:emissionFactor a rdf:Property ; rdfs:domain :EmissionEntry ; rdfs:range xsd:decimal .
+:emissions a rdf:Property ; rdfs:domain :EmissionEntry ; rdfs:range xsd:decimal .
+:sourceFor a rdf:Property ; rdfs:domain :EmissionEntry ; rdfs:range prod:ProductionBatch .
+
+# Example instances
+:EmissionReport_2025_11 a :EmissionReport .
+:Entry_1 a :EmissionEntry .
+:Entry_1 :sourceFor prod:Batch_2025_11_01 .
+:Entry_1 :activity "1000"^^xsd:decimal .
+:Entry_1 :emissionFactor "0.75"^^xsd:decimal .
+:Entry_1 :emissions "750"^^xsd:decimal .
+:EmissionReport_2025_11 :hasSource :Entry_1 .
