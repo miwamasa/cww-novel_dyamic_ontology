@@ -7,7 +7,8 @@ function OperationPanel({ operations, selectedOperation, onOperationChange, onVi
     subtraction: '∖',
     merge: '∪',
     composition: '∘',
-    division: '÷'
+    division: '÷',
+    transformation: '→'
   };
 
   return (
@@ -99,6 +100,12 @@ function OperationPanel({ operations, selectedOperation, onOperationChange, onVi
             <div>
               <p><strong>Mathematical:</strong> Given O_full and O_A, find O_B</p>
               <p>Inverse problem: reconstruct missing component</p>
+            </div>
+          )}
+          {selectedOperation === 'transformation' && (
+            <div>
+              <p><strong>Mathematical:</strong> F: O_source → O_target (Functor)</p>
+              <p>Structure-preserving transformation from one domain to another</p>
             </div>
           )}
         </div>

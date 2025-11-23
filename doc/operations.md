@@ -8,13 +8,14 @@
 4. [Merge（合併）](#merge合併)
 5. [Composition（合成）](#composition合成)
 6. [Division（割り算）](#division割り算)
-7. [演算の組み合わせ](#演算の組み合わせ)
+7. [Transformation（変換）](#transformation変換)
+8. [演算の組み合わせ](#演算の組み合わせ)
 
 ---
 
 ## 演算の概要
 
-Dynamic Ontologyでは、オントロジーに対して5つの基本演算が定義されています：
+Dynamic Ontologyでは、オントロジーに対して6つの基本演算が定義されています：
 
 | 演算 | 記号 | 数学的意味 | 用途 |
 |------|------|-----------|------|
@@ -23,6 +24,7 @@ Dynamic Ontologyでは、オントロジーに対して5つの基本演算が定
 | Merge | ∪ | Alignment-based Union | 意味的統合 |
 | Composition | ∘ | Interface Connection | ワークフロー接続 |
 | Division | ÷ | Inverse Problem | 補完・復元 |
+| Transformation | → | Functor Mapping | ドメイン間変換 |
 
 ### 演算の選択基準
 
@@ -41,8 +43,11 @@ Dynamic Ontologyでは、オントロジーに対して5つの基本演算が定
   ├─ 処理フローを接続したい
   │  └─→ Composition
   │
-  └─ 失われた部分を復元したい
-     └─→ Division
+  ├─ 失われた部分を復元したい
+  │  └─→ Division
+  │
+  └─ あるドメインから別のドメインに変換したい
+     └─→ Transformation
 ```
 
 ---
@@ -821,6 +826,245 @@ def division(O_full, O_A):
 
 ---
 
+## Transformation（変換）
+
+### 定義
+
+**数学的表現**:
+```
+F: O_source → O_target
+F = (F_C, F_R, F_A, F_I, F_Σ)
+```
+
+**意味**: ソースオントロジーをターゲットオントロジーに構造保存的に変換する関手（Functor）。明示的な変換マッピングを使用。
+
+### 特徴
+
+- 🎯 **目的指向**: ターゲット構造が事前定義
+- 🔄 **構造保存**: 関係性を保ちながら変換
+- 📋 **マッピング明示**: クラス・関係の対応を明記
+- ✨ **ドメイン翻訳**: 異なる領域間の変換が可能
+
+### Compositionとの違い
+
+| 観点 | Composition (∘) | Transformation (→) |
+|------|-----------------|-------------------|
+| 結果 | 2つのオントロジーを接続 | 1つに変換 |
+| 元のデータ | 両方保持 | ソースは消費 |
+| 用途 | ワークフロー接続 | データマイグレーション |
+| 関係 | インターフェース経由 | 直接マッピング |
+
+### アルゴリズム
+
+```python
+def transformation(O_source, mapping_rules, target_schema):
+    O_target = create_ontology(target_schema)
+
+    # 1. クラスの変換
+    for cls_source in O_source.classes:
+        rule = mapping_rules.find_class_rule(cls_source.id)
+        if rule:
+            cls_target = rule.apply(cls_source)
+            O_target.add_class(cls_target)
+
+    # 2. 関係の変換
+    for rel_source in O_source.relations:
+        rule = mapping_rules.find_relation_rule(rel_source.id)
+        if rule:
+            rel_target = rule.apply(rel_source)
+            O_target.add_relation(rel_target)
+
+    # 3. インスタンスの変換（データマイグレーション）
+    for inst_source in O_source.instances:
+        inst_target = transform_instance(inst_source, mapping_rules)
+        O_target.add_instance(inst_target)
+
+    # 4. 変換ログの記録
+    O_target.metadata['transformation'] = {
+        'source': O_source.id,
+        'mappings': mapping_rules.summary(),
+        'unmapped_elements': find_unmapped(O_source, mapping_rules)
+    }
+
+    return O_target
+```
+
+### 使用例
+
+#### シナリオ1: 製造データ → GHG排出レポート
+
+```
+Factory Production Ontology → GHG Reporting Ontology
+
+マッピング:
+  ProductionBatch → EmissionEntry
+  quantity → activity
+  Product.carbonFootprint → emissionFactor
+
+計算:
+  emissions = activity × emissionFactor
+```
+
+実際の例は後述の例題2を参照。
+
+#### シナリオ2: レガシーシステムのマイグレーション
+
+```
+Old CRM System → New CRM System
+
+マッピング:
+  Customer → Client
+  Purchase → Order
+  CustomerAddress → ClientLocation
+
+データ移行:
+  全インスタンスをマッピングに従って変換
+```
+
+#### シナリオ3: 国際標準への準拠
+
+```
+Company-specific Ontology → ISO Standard Ontology
+
+マッピング:
+  内部用語 → 標準用語
+  独自分類 → 標準分類
+
+品質保証:
+  マッピングのカバレッジ: 95%以上
+  データロス: なし
+```
+
+### LLMプロンプト例
+
+```
+# Task: Ontology Transformation (Functor Mapping)
+
+## Source Ontology:
+{
+  "id": "factory-production",
+  "classes": ["ProductionBatch", "Product", "Factory"],
+  "relations": ["batchOf", "quantity", "timestamp"],
+  "instances": [
+    {
+      "id": "Batch_2025_11_01",
+      "classId": "ProductionBatch",
+      "properties": {
+        "quantity": 1000,
+        "batchOf": "WidgetX"
+      }
+    }
+  ]
+}
+
+## Target Schema:
+{
+  "id": "ghg-reporting",
+  "classes": ["EmissionEntry", "EmissionSource"],
+  "relations": ["activity", "emissionFactor", "emissions", "sourceFor"]
+}
+
+## Transformation Mapping Rules:
+1. Class Mappings:
+   - ProductionBatch → EmissionEntry
+   - Product → (reference in sourceFor)
+
+2. Relation Mappings:
+   - quantity → activity (numerical value)
+   - batchOf → sourceFor (reference)
+   - ADD: emissionFactor (from Product metadata or external DB)
+   - COMPUTE: emissions = activity × emissionFactor
+
+3. Instance Transformation:
+   - Each ProductionBatch instance becomes EmissionEntry instance
+   - Preserve ID as sourceFor reference
+   - Calculate emissions based on activity and factor
+
+## Instructions:
+1. Apply class mappings to transform structure
+2. Transform all relations according to mapping rules
+3. For each source instance:
+   - Apply mappings to create target instance
+   - Compute derived properties (emissions)
+   - Preserve traceability (sourceFor references)
+4. Handle unmapped elements:
+   - List any source elements without mapping
+   - Suggest potential mappings
+5. Validate result against target schema
+
+## Output Format:
+{
+  "result": {
+    "id": "ghg-report-transformed",
+    "classes": [...],
+    "relations": [...],
+    "instances": [...]
+  },
+  "transformation_metadata": {
+    "source_ontology": "factory-production",
+    "target_schema": "ghg-reporting",
+    "mappings_applied": [
+      {
+        "source": "ProductionBatch",
+        "target": "EmissionEntry",
+        "type": "class"
+      },
+      ...
+    ],
+    "unmapped_elements": [],
+    "data_quality": {
+      "instances_transformed": 15,
+      "computation_success": 15,
+      "data_loss": false
+    }
+  }
+}
+```
+
+### 注意点
+
+**1. マッピングの完全性**
+- 全ての必須要素がマッピングされているか確認
+- 未マッピング要素の処理方針を決定
+
+**2. データ型の互換性**
+- ソースとターゲットのデータ型が互換か検証
+- 必要に応じて変換関数を定義
+
+**3. セマンティクスの保存**
+- 変換後も意味が保たれているか確認
+- 計算式の正当性を検証
+
+**4. トレーサビリティ**
+- 元データへの参照を保持
+- 変換プロセスを記録
+
+**5. バリデーション**
+- ターゲットスキーマへの準拠を確認
+- データ品質チェックを実施
+
+### 圏論的解釈
+
+Transformationは圏論における**関手（Functor）**として理解できます：
+
+```
+F: Ont_source → Ont_target
+
+性質:
+1. 対象の写像: F(C_source) = C_target
+2. 射の写像: F(R_source) = R_target
+3. 構造保存: F(r: A → B) = F(r): F(A) → F(B)
+4. 恒等射保存: F(id_A) = id_{F(A)}
+5. 合成保存: F(g ∘ f) = F(g) ∘ F(f)
+```
+
+これにより：
+- 複数の変換の合成が可能: `F ∘ G`
+- 逆変換の定義が可能: `F^{-1}` (可能な場合)
+- 自然変換による変換間の関係を記述可能
+
+---
+
 ## 演算の組み合わせ
 
 ### 複合演算の例
@@ -880,5 +1124,6 @@ Step 3: Recompose
 | Merge | 高 | ⚠️ | 意味的統合 |
 | Composition | 中 | ✅ | ワークフロー接続 |
 | Division | 高 | N/A | 復元・分析 |
+| Transformation | 中〜高 | ⚠️ | ドメイン変換・マイグレーション |
 
 適切な演算を選択し、組み合わせることで、柔軟なオントロジー管理が実現できます。
