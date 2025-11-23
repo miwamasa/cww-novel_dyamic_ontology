@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import OntologyViewer from './components/OntologyViewer';
 import OperationPanel from './components/OperationPanel';
 import ResultDisplay from './components/ResultDisplay';
-import PromptModal from './components/PromptModal';
 import './App.css';
 
 function App() {
@@ -16,9 +15,7 @@ function App() {
   const [error, setError] = useState(null);
   const [llmStatus, setLlmStatus] = useState(null);
 
-  // Prompt modal state
-  const [showPromptModal, setShowPromptModal] = useState(false);
-  const [promptData, setPromptData] = useState(null);
+  // Prompt preview state
   const [loadingPrompt, setLoadingPrompt] = useState(false);
 
   // Load examples and operations on mount
@@ -124,6 +121,7 @@ function App() {
 
     setLoadingPrompt(true);
     setError(null);
+    setResult(null);
 
     try {
       const response = await fetch(`/api/generate-prompt/${selectedOperation}`, {
@@ -142,8 +140,11 @@ function App() {
       }
 
       const data = await response.json();
-      setPromptData(data);
-      setShowPromptModal(true);
+      // Set as result with special type for prompt preview
+      setResult({
+        ...data,
+        _type: 'prompt-preview'
+      });
     } catch (err) {
       setError(err.message);
     } finally {
@@ -258,13 +259,6 @@ function App() {
       <footer className="app-footer">
         <p>Based on the theory of Dynamic Ontology with operations: Addition, Subtraction, Merge, Composition, Division</p>
       </footer>
-
-      {showPromptModal && promptData && (
-        <PromptModal
-          promptData={promptData}
-          onClose={() => setShowPromptModal(false)}
-        />
-      )}
     </div>
   );
 }
