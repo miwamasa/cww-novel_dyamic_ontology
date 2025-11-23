@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import OntologyViewer from './components/OntologyViewer';
 import OperationPanel from './components/OperationPanel';
 import ResultDisplay from './components/ResultDisplay';
+import PromptModal from './components/PromptModal';
 import './App.css';
 
 function App() {
@@ -14,6 +15,11 @@ function App() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [llmStatus, setLlmStatus] = useState(null);
+
+  // Prompt modal state
+  const [showPromptModal, setShowPromptModal] = useState(false);
+  const [promptData, setPromptData] = useState(null);
+  const [loadingPrompt, setLoadingPrompt] = useState(false);
 
   // Load examples and operations on mount
   useEffect(() => {
@@ -110,6 +116,41 @@ function App() {
     }
   };
 
+  const viewPrompt = async () => {
+    if (!ontologyA || !ontologyB) {
+      setError('Please select or define both ontologies');
+      return;
+    }
+
+    setLoadingPrompt(true);
+    setError(null);
+
+    try {
+      const response = await fetch(`/api/generate-prompt/${selectedOperation}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ontologyA,
+          ontologyB,
+          options: {}
+        })
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to generate prompt');
+      }
+
+      const data = await response.json();
+      setPromptData(data);
+      setShowPromptModal(true);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoadingPrompt(false);
+    }
+  };
+
   const executeOperation = async () => {
     if (!ontologyA || !ontologyB) {
       setError('Please select or define both ontologies');
@@ -187,8 +228,10 @@ function App() {
               operations={operations}
               selectedOperation={selectedOperation}
               onOperationChange={setSelectedOperation}
+              onViewPrompt={viewPrompt}
               onExecute={executeOperation}
               loading={loading}
+              loadingPrompt={loadingPrompt}
             />
           </div>
 
@@ -215,6 +258,13 @@ function App() {
       <footer className="app-footer">
         <p>Based on the theory of Dynamic Ontology with operations: Addition, Subtraction, Merge, Composition, Division</p>
       </footer>
+
+      {showPromptModal && promptData && (
+        <PromptModal
+          promptData={promptData}
+          onClose={() => setShowPromptModal(false)}
+        />
+      )}
     </div>
   );
 }

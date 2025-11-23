@@ -193,6 +193,14 @@ function ResultDisplay({ result, operation }) {
         >
           Metadata & Analysis
         </button>
+        {result._meta && result._meta.rawResponse && (
+          <button
+            className={`tab-btn ${activeTab === 'raw' ? 'active' : ''}`}
+            onClick={() => setActiveTab('raw')}
+          >
+            Raw LLM Response
+          </button>
+        )}
         <button
           className={`tab-btn ${activeTab === 'json' ? 'active' : ''}`}
           onClick={() => setActiveTab('json')}
@@ -206,6 +214,19 @@ function ResultDisplay({ result, operation }) {
         {activeTab === 'alignments' && renderAlignments()}
         {activeTab === 'conflicts' && renderConflicts()}
         {activeTab === 'metadata' && renderMetadata()}
+        {activeTab === 'raw' && result._meta && (
+          <div className="raw-response-content">
+            <div className="raw-response-info">
+              <p><strong>Provider:</strong> {result._meta.provider}</p>
+              <p><strong>Model:</strong> {result._meta.model}</p>
+              <p><strong>Mock:</strong> {result._meta.mock ? 'Yes' : 'No'}</p>
+            </div>
+            <div className="raw-response-text">
+              <h4>Raw Response from LLM:</h4>
+              <pre className="json-output">{result._meta.rawResponse}</pre>
+            </div>
+          </div>
+        )}
         {activeTab === 'json' && (
           <pre className="json-output">{JSON.stringify(result, null, 2)}</pre>
         )}
