@@ -71,6 +71,38 @@
   align-items: center;
 }
 
+.operation-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.view-prompt-btn {
+  padding: 0.75rem 1rem;
+  background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.view-prompt-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(72, 187, 120, 0.4);
+}
+
+.view-prompt-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 .execute-btn {
   padding: 1rem;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);

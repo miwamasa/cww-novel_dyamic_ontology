@@ -39,17 +39,37 @@ export class LLMService {
    * Execute an ontology operation using LLM
    * @param {string} prompt - The complete prompt
    * @param {Object} options - Additional options
-   * @returns {Promise<Object>} Parsed JSON result from LLM
+   * @returns {Promise<Object>} Parsed JSON result from LLM with raw response
    */
   async execute(prompt, options = {}) {
     if (!this.apiKey) {
       // Return mock data if no API key is configured
-      return this.getMockResponse(prompt);
+      const mockResult = this.getMockResponse(prompt);
+      return {
+        ...mockResult,
+        _meta: {
+          rawResponse: 'Mock response (no API key configured)',
+          provider: this.provider,
+          model: this.model,
+          mock: true
+        }
+      };
     }
 
     try {
-      const response = await this.callAPI(prompt, options);
-      return this.parseResponse(response);
+      const rawResponse = await this.callAPI(prompt, options);
+      const parsed = this.parseResponse(rawResponse);
+
+      // Add metadata including raw response
+      return {
+        ...parsed,
+        _meta: {
+          rawResponse,
+          provider: this.provider,
+          model: this.model,
+          mock: false
+        }
+      };
     } catch (error) {
       console.error('LLM execution error:', error);
       throw new Error(`LLM execution failed: ${error.message}`);

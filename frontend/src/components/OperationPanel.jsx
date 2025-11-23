@@ -1,7 +1,7 @@
 import React from 'react';
 import './OperationPanel.css';
 
-function OperationPanel({ operations, selectedOperation, onOperationChange, onExecute, loading }) {
+function OperationPanel({ operations, selectedOperation, onOperationChange, onViewPrompt, onExecute, loading, loadingPrompt }) {
   const operationSymbols = {
     addition: '⊕',
     subtraction: '∖',
@@ -32,22 +32,41 @@ function OperationPanel({ operations, selectedOperation, onOperationChange, onEx
         {operations.find(op => op.id === selectedOperation)?.description || 'Select an operation'}
       </div>
 
-      <button
-        className="execute-btn"
-        onClick={onExecute}
-        disabled={loading}
-      >
-        {loading ? (
-          <>
-            <span className="spinner"></span>
-            Executing...
-          </>
-        ) : (
-          <>
-            Execute Operation
-          </>
-        )}
-      </button>
+      <div className="operation-buttons">
+        <button
+          className="view-prompt-btn"
+          onClick={onViewPrompt}
+          disabled={loadingPrompt || loading}
+        >
+          {loadingPrompt ? (
+            <>
+              <span className="spinner"></span>
+              Loading...
+            </>
+          ) : (
+            <>
+              📋 View Prompt
+            </>
+          )}
+        </button>
+
+        <button
+          className="execute-btn"
+          onClick={onExecute}
+          disabled={loading || loadingPrompt}
+        >
+          {loading ? (
+            <>
+              <span className="spinner"></span>
+              Executing...
+            </>
+          ) : (
+            <>
+              ▶ Execute Operation
+            </>
+          )}
+        </button>
+      </div>
 
       <div className="operation-info">
         <h4>Theory</h4>

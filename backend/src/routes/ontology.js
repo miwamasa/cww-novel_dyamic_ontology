@@ -108,6 +108,59 @@ router.post('/execute/:operation', async (req, res) => {
 });
 
 /**
+ * POST /api/generate-prompt/:operation
+ * Generate LLM prompt without executing
+ */
+router.post('/generate-prompt/:operation', (req, res) => {
+  try {
+    const { operation } = req.params;
+    const { ontologyA, ontologyB, interface: interfaceSpec } = req.body;
+
+    // Validate inputs
+    if (!ontologyA) {
+      return res.status(400).json({ error: 'ontologyA is required' });
+    }
+
+    const validOperations = ['addition', 'subtraction', 'merge', 'composition', 'division'];
+    if (!validOperations.includes(operation)) {
+      return res.status(400).json({
+        error: `Invalid operation: ${operation}`,
+        validOperations
+      });
+    }
+
+    // Generate prompt
+    const prompt = generatePrompt(operation, {
+      ontologyA,
+      ontologyB,
+      interface: interfaceSpec
+    });
+
+    res.json({
+      operation,
+      prompt,
+      inputSummary: {
+        ontologyA: {
+          id: ontologyA.id,
+          name: ontologyA.name,
+          classCount: ontologyA.classes?.length || 0,
+          relationCount: ontologyA.relations?.length || 0
+        },
+        ontologyB: ontologyB ? {
+          id: ontologyB.id,
+          name: ontologyB.name,
+          classCount: ontologyB.classes?.length || 0,
+          relationCount: ontologyB.relations?.length || 0
+        } : null
+      }
+    });
+  } catch (error) {
+    console.error('Prompt generation error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+/**
  * POST /api/test-llm
  * Test LLM connection
  */

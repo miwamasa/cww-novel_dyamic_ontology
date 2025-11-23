@@ -269,3 +269,40 @@
   line-height: 1.5;
   margin: 0;
 }
+
+.raw-response-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.raw-response-info {
+  background: #f8f9fa;
+  padding: 1rem;
+  border-radius: 6px;
+  border-left: 4px solid #667eea;
+}
+
+.raw-response-info p {
+  margin: 0.5rem 0;
+  font-size: 0.9rem;
+  color: #333;
+}
+
+.raw-response-text h4 {
+  margin-bottom: 0.75rem;
+  color: #555;
+  font-size: 1rem;
+}
+
+.raw-response-text pre {
+  background: #f8f9fa;
+  padding: 1.5rem;
+  border-radius: 6px;
+  overflow-x: auto;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  margin: 0;
+  max-height: 500px;
+  overflow-y: auto;
+}
